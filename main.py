@@ -69,14 +69,12 @@ def health_check():
 
 @app.get("/tasks")
 def list_tasks():
-    with closing(get_connection()) as connection:
-        return [serialize_task(row) for row in connection.execute("SELECT * FROM tasks")]
+    return [serialize_task(row) for row in database.list_tasks()]
 
 
 @app.get("/tasks/{task_id}")
 def get_task(task_id: int):
-    with closing(get_connection()) as connection:
-        row = connection.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+    row = database.get_task(task_id)
     if row is None:
         return JSONResponse(status_code=404, content={"error": "Task not found"})
     return serialize_task(row)
