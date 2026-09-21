@@ -51,19 +51,19 @@ docker compose exec api python -m unittest -v
 
 Inspect the running database directly:
 
-![Docker Desktop showing the running assignment Compose stack](docs/postgres-compose.jpg)
+![PostgreSQL tasks table queried with psql](docs/postgres-db.jpg)
 
-The green status indicator above shows the live `buildyourfirstapiendpoint` Compose project. Its `db` service uses PostgreSQL 16 Alpine; the direct `psql` output below verifies the table and rows inside that database.
+The screenshot above was captured from the running PostgreSQL 16 container and shows the `tasks` table plus its three seeded rows.
 
 ```powershell
-docker compose exec db psql -U postgres -d tasks -c "\\dt"
+docker compose exec db psql -U postgres -d tasks -c "\dt"
 docker compose exec db psql -U postgres -d tasks -c "SELECT * FROM tasks ORDER BY id;"
 ```
 
 The SQL practice statements are in [`queries.sql`](queries.sql). Direct output from PostgreSQL after `docker compose up --build`:
 
 ```text
-$ docker compose exec db psql -U postgres -d tasks -c "\\dt"
+$ docker compose exec db psql -U postgres -d tasks -c "\dt"
          List of relations
  Schema | Name  | Type  |  Owner
 --------+-------+-------+----------
