@@ -3,6 +3,7 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
+import database
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 
@@ -31,6 +32,7 @@ def initialize_database():
                 )
 
 
+database.initialize_database()
 initialize_database()
 
 
