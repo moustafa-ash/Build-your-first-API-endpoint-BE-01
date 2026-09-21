@@ -4,7 +4,7 @@ from contextlib import closing
 from pathlib import Path
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 
 DATABASE_PATH = Path(os.environ.get("TASKS_DB_PATH", Path(__file__).with_name("tasks.db")))
@@ -96,3 +96,37 @@ async def create_task(request: Request):
                 "SELECT * FROM tasks WHERE id = ?", (cursor.lastrowid,)
             ).fetchone()
     return serialize_task(row)
+
+
+@app.put("/tasks/{task_id}")
+async def update_task(task_id: int, request: Request):
+    body = await read_json(request)
+    title = body.get("title") if body else None
+    done = body.get("done") if body else None
+    if not isinstance(title, str) or not title.strip() or type(done) is not bool:
+        return JSONResponse(status_code=400, content={"error": "Invalid task"})
+
+    with closing(get_connection()) as connection:
+        with connection:
+            cursor = connection.execute(
+                "UPDATE tasks SET title = ?, done = ? WHERE id = ?",
+                (title.strip(), int(done), task_id),
+            )
+            row = (
+                connection.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+                if cursor.rowcount
+                else None
+            )
+    if row is None:
+        return JSONResponse(status_code=404, content={"error": "Task not found"})
+    return serialize_task(row)
+
+
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int):
+    with closing(get_connection()) as connection:
+        with connection:
+            cursor = connection.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+    if not cursor.rowcount:
+        return JSONResponse(status_code=404, content={"error": "Task not found"})
+    return Response(status_code=204)
