@@ -3,7 +3,7 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 
@@ -47,6 +47,14 @@ def serialize_task(row):
     return {"id": row["id"], "title": row["title"], "done": bool(row["done"])}
 
 
+async def read_json(request):
+    try:
+        body = await request.json()
+    except Exception:
+        return None
+    return body if isinstance(body, dict) else None
+
+
 @app.get("/")
 def read_root():
     return {"status": "success", "message": "API is live."}
@@ -69,4 +77,22 @@ def get_task(task_id: int):
         row = connection.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
     if row is None:
         return JSONResponse(status_code=404, content={"error": "Task not found"})
+    return serialize_task(row)
+
+
+@app.post("/tasks", status_code=201)
+async def create_task(request: Request):
+    body = await read_json(request)
+    title = body.get("title") if body else None
+    if not isinstance(title, str) or not title.strip():
+        return JSONResponse(status_code=400, content={"error": "Title is required"})
+
+    with closing(get_connection()) as connection:
+        with connection:
+            cursor = connection.execute(
+                "INSERT INTO tasks (title, done) VALUES (?, ?)", (title.strip(), 0)
+            )
+            row = connection.execute(
+                "SELECT * FROM tasks WHERE id = ?", (cursor.lastrowid,)
+            ).fetchone()
     return serialize_task(row)
