@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "url": "https://books.toscrape.com/catalogue/this-page-is-intentionally-missing.html",
+    "reason": "HTTP 404 for https://books.toscrape.com/catalogue/this-page-is-intentionally-missing.html"
+  }
+]

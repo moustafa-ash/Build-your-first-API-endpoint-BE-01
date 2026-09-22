@@ -1,0 +1,15 @@
+{
+  "started_at": "2026-09-22T20:33:39.107352Z",
+  "duration_seconds": 1.079,
+  "pages_fetched": 0,
+  "cache_hits": 63,
+  "valid_records": 60,
+  "invalid_records": 0,
+  "failed_pages": 1,
+  "failures": [
+    {
+      "url": "https://books.toscrape.com/catalogue/this-page-is-intentionally-missing.html",
+      "reason": "HTTP 404 for https://books.toscrape.com/catalogue/this-page-is-intentionally-missing.html"
+    }
+  ]
+}

@@ -43,3 +43,27 @@ Before storage, every record is checked with the Pydantic `BookRecord` schema.
 `output/books.json`, while records that fail normalization or validation are
 written with their reason to `output/errors.json`. The current cached run has
 60 valid records and no validation errors.
+
+## Failure handling and report
+
+Every page is isolated. Timeouts and HTTP 5xx responses receive one retry after
+one second; 403 and 404 responses are not retried. To reproduce the required
+local failure proof, run:
+
+```powershell
+python src/main.py --include-broken-url
+```
+
+That run completed with `valid_records: 60`, `failed_pages: 1`, and one entry
+in `output/run-report.json`; the good records remained intact. The report also
+records its UTC start time, duration, network fetches, cache hits, and failure
+details.
+
+The scraper sends an identifying user-agent, waits at least 500 ms between real
+requests, uses a 10-second timeout, checks status codes, and reads cached HTML
+while developing. Use an official API when one exists, never bypass logins,
+paywalls, or blocks, and collect only what is needed. This assignment needs no
+browser because the required catalogue and product data are already in the
+server-sent HTML; a browser would add cost. The selectors are intentionally
+specific to the current sandbox markup and may need updating if that markup
+changes.
