@@ -67,3 +67,22 @@ browser because the required catalogue and product data are already in the
 server-sent HTML; a browser would add cost. The selectors are intentionally
 specific to the current sandbox markup and may need updating if that markup
 changes.
+
+## Sample run report
+
+The committed failure-proof run produced:
+
+```json
+{
+  "pages_fetched": 0,
+  "cache_hits": 63,
+  "valid_records": 60,
+  "invalid_records": 0,
+  "failed_pages": 1,
+  "failures": [{"url": "...this-page-is-intentionally-missing.html", "reason": "HTTP 404"}]
+}
+```
+
+Cached HTML stays out of Git; the committed JSON outputs are a small, reusable
+sample for a stranger cloning this repository. The core scraper intentionally
+does not use a database, browser, paid proxy, queue, or model provider.
