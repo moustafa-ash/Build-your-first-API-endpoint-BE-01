@@ -26,3 +26,11 @@ The catalogue checkpoint is `catalogue_pages=3 discovered=60
 unique_urls=60`. The first run fetches and caches the three catalogue pages;
 later development runs read those saved copies instead of requesting them
 again.
+
+## Raw detail records
+
+Each detail page is cached separately and produces these provenance-preserving
+fields before normalization: `title`, `product_url`, `price_text`,
+`availability_text`, `rating_text`, `description`, `source_page`, and
+`fetched_at`. The live checkpoint produced `detail_pages=60`; a missing
+description is represented as `null`.
