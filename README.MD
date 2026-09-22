@@ -71,6 +71,10 @@ docker compose exec api python -m unittest -v
 
 The live signup/login/profile/dashboard/tampered-token/logout flow and Swagger screenshot require a configured Supabase project. Do not print or commit Supabase credentials.
 
+## Submission checklist
+
+Before publishing, confirm the full curl and Swagger flows pass, `docs/swagger-auth.png` shows the authorized profile call, `.env` is ignored, and `git log --all -- .env` returns no entries.
+
 ## Verify and inspect PostgreSQL
 
 Run the API contract checks against a temporary PostgreSQL database:
