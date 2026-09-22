@@ -34,3 +34,12 @@ fields before normalization: `title`, `product_url`, `price_text`,
 `availability_text`, `rating_text`, `description`, `source_page`, and
 `fetched_at`. The live checkpoint produced `detail_pages=60`; a missing
 description is represented as `null`.
+
+## Validated output
+
+Before storage, every record is checked with the Pydantic `BookRecord` schema.
+`price_text` is retained alongside numeric `price_gbp`; `product_url` and
+`source_page` must be HTTPS URLs. Valid records are written to
+`output/books.json`, while records that fail normalization or validation are
+written with their reason to `output/errors.json`. The current cached run has
+60 valid records and no validation errors.
