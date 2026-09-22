@@ -167,6 +167,23 @@ class AuthApiTest(unittest.TestCase):
         self.assertEqual(paths["/protected/profile"]["get"]["security"], [{"BearerAuth": []}])
         self.assertEqual(paths["/auth/logout"]["post"]["security"], [{"BearerAuth": []}])
 
+    @patch("main.httpx.post")
+    def test_logout_provider_errors(self, post):
+        main.supabase.auth.get_user.return_value = SimpleNamespace(user=self.user)
+        post.return_value = SimpleNamespace(status_code=503)
+        unavailable = self.client.post(
+            "/auth/logout", headers={"Authorization": "Bearer access-token"}
+        )
+        self.assertEqual(unavailable.status_code, 503)
+        self.assertEqual(unavailable.json(), {"error": "Authentication service unavailable"})
+
+        post.return_value = SimpleNamespace(status_code=401)
+        invalid = self.client.post(
+            "/auth/logout", headers={"Authorization": "Bearer access-token"}
+        )
+        self.assertEqual(invalid.status_code, 401)
+        self.assertEqual(invalid.json(), {"error": "Invalid or expired token"})
+
 
 if __name__ == "__main__":
     unittest.main()
