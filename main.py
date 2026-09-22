@@ -1,12 +1,40 @@
+import os
 import database
-from fastapi import FastAPI, Request
+
+import httpx
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from supabase import Client, create_client
+from supabase.lib.client_options import SyncClientOptions
 from fastapi.responses import JSONResponse, Response
 
 
-database.initialize_database()
+load_dotenv()
+if os.environ.get("FLYRANK_SKIP_DB_INIT") != "1":
+    database.initialize_database()
 
 
 app = FastAPI()
+SUPABASE_URL = os.environ["SUPABASE_URL"].rstrip("/")
+SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+supabase: Client = create_client(
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    options=SyncClientOptions(auto_refresh_token=False, persist_session=False),
+)
+bearer_auth = HTTPBearer(auto_error=False, scheme_name="BearerAuth", bearerFormat="JWT")
+
+
+class AuthFailure(Exception):
+    def __init__(self, message, status_code=401):
+        self.message = message
+        self.status_code = status_code
+
+
+@app.exception_handler(AuthFailure)
+async def auth_failure_handler(request, exc):
+    return JSONResponse(status_code=exc.status_code, content={"error": exc.message})
 
 
 def serialize_task(row):
