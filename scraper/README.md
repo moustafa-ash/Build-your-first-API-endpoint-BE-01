@@ -13,3 +13,16 @@ returned HTTP 404 Not Found, so no robots file was found; that is not permission
 to scrape another site. I will not reuse this code on another site without
 checking its rules and terms first.
 
+## Run
+
+From this directory, install the lane dependencies and run:
+
+```powershell
+python -m pip install -r requirements.txt
+python src/main.py
+```
+
+The catalogue checkpoint is `catalogue_pages=3 discovered=60
+unique_urls=60`. The first run fetches and caches the three catalogue pages;
+later development runs read those saved copies instead of requesting them
+again.

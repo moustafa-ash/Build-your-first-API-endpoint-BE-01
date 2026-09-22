@@ -77,7 +77,7 @@ class Scraper:
             fetched_at = datetime.fromtimestamp(
                 cache_path.stat().st_mtime, tz=timezone.utc
             ).isoformat().replace("+00:00", "Z")
-            return cache_path.read_text(encoding="utf-8"), fetched_at
+            return cache_path.read_text(encoding="utf-8").replace("Â£", "£"), fetched_at
 
         last_error: Exception | None = None
         for attempt in range(2):
@@ -97,13 +97,14 @@ class Scraper:
 
             if response.status_code == 200:
                 cache_path.parent.mkdir(parents=True, exist_ok=True)
-                cache_path.write_text(response.text, encoding="utf-8")
+                text = response.content.decode("utf-8", errors="replace")
+                cache_path.write_text(text, encoding="utf-8")
                 self.pages_fetched += 1
                 print(f"FETCH {url} ({len(response.content)} bytes)")
                 fetched_at = datetime.now(timezone.utc).isoformat().replace(
                     "+00:00", "Z"
                 )
-                return response.text, fetched_at
+                return text, fetched_at
 
             if 500 <= response.status_code < 600 and attempt == 0:
                 last_error = FetchError(f"HTTP {response.status_code}")
