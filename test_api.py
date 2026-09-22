@@ -1,5 +1,6 @@
 import unittest
 import os
+import httpx
 from types import SimpleNamespace
 from uuid import uuid4
 from unittest.mock import Mock, patch
@@ -141,6 +142,15 @@ class AuthApiTest(unittest.TestCase):
         )
         self.assertEqual(tampered.status_code, 401)
         self.assertEqual(tampered.json(), {"error": "Invalid or expired token"})
+
+    def test_auth_provider_failure_is_503(self):
+        request = httpx.Request("GET", "https://example.supabase.co/auth/v1/user")
+        main.supabase.auth.get_user.side_effect = httpx.RequestError("offline", request=request)
+        response = self.client.get(
+            "/protected/profile", headers={"Authorization": "Bearer access-token"}
+        )
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json(), {"error": "Authentication service unavailable"})
 
     @patch("main.httpx.post")
     def test_logout_and_openapi_security(self, post):
